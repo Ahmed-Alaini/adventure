@@ -1,14 +1,5 @@
 <?php
-// include('db.php');  // الاتصال بقاعدة البيانات
-// session_start(); // Start the session
-
-// // Destroy the session completely
-// session_unset(); // Unset all session variables
-// session_destroy(); // Destroy the session data on the server
-
-// // Redirect to the login page
-// header("Location: auth.php");
-// exit();
+include('db.php');  // الاتصال بقاعدة البيانات
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {

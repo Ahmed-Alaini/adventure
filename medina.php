@@ -1,55 +1,93 @@
 <?php
+session_start();
 require_once 'mail.php'; 
 include('db.php'); // الاتصال بقاعدة البيانات
 
 // Ensure the user is logged in
-// if (!isset($_SESSION['name'])) {
-//     header("Location: auth.php");
-//     exit();
-// }
+if (!isset($_SESSION['username'])) {
+    header("Location: auth.php");
+    exit();
+}
 
-// إذا تم إرسال النموذج
+// If the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['book'])) {
-    // معالجة بيانات النموذج
+    // Sanitize and prepare input data
     $num_people = mysqli_real_escape_string($conn, $_POST['num_people']);
     $trip_date = mysqli_real_escape_string($conn, $_POST['trip_date']);
     $payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
 
-    // جلب البريد الإلكتروني من الجلسة
+    $username = $_SESSION['username'];
+    $userId = $_SESSION['user_id'];
 
-    // استعلام لإدخال بيانات الحجز في قاعدة البيانات
-    $sql = "INSERT INTO bookings (num_people, trip_date, payment_method) 
-            VALUES ('$num_people', '$trip_date', '$payment_method')";
+    // Prepare the SQL statement to insert booking details
+    $sql = "INSERT INTO bookings (num_people, trip_date, payment_method, user_id, trip_id, booked) 
+            VALUES (?, ?, ?, ?, ?, ?)";
 
-    if (mysqli_query($conn, $sql)) {
-        // إعداد رسالة التأكيد بالبريد الإلكتروني باستخدام PHPMailer
-        try {
-            $mail->setFrom('sadv65550@gmail.com', 'مغامرة حياتك');
-            $mail->addAddress('alainiahmed91@gmail.com'); // إرسال إلى البريد الإلكتروني في الجلسة
-            $mail->Subject = "تأكيد حجز هايكنق في المدينة المنورة";
-            $mail->Body = "
-            <b>تم حجز رحلة هايكنق في المدينة المنورة بنجاح</b><br>
-            <b>عدد الأشخاص:</b> $num_people<br>
-            <b>تاريخ الرحلة:</b> $trip_date<br>
-            <b>طريقة الدفع:</b> $payment_method<br>
-            ";
+    // Prepare the statement to avoid SQL injection
+    if ($stmt = $conn->prepare($sql)) {
+        // Bind parameters
+        $booked = 1; 
+        $trip_id= 2;
+        $stmt->bind_param("issiii", $num_people, $trip_date, $payment_method, $userId, $trip_id, $booked);
 
-            // إرسال البريد الإلكتروني
-            if ($mail->send()) {
-                $success_message = "تم الحجز بنجاح! سيتم إرسال تفاصيل الحجز إلى بريدك الإلكتروني.";
-                echo $success_message ;
-                echo 'hello';
+        // Execute the query
+        if ($stmt->execute()) {
+            // Query to fetch email from users table
+            $query = "SELECT email FROM users WHERE id = ?";
+            if ($stmt_email = $conn->prepare($query)) {
+                // Bind user ID and execute the query
+                $stmt_email->bind_param("i", $userId);
+                $stmt_email->execute();
+                $stmt_email->bind_result($email);
+                $stmt_email->fetch();
+
+                if ($email) {
+                    // Send confirmation email using PHPMailer
+                    try {
+                        $mail->setFrom('sadv65550@gmail.com', 'مغامرة حياتك');
+                        $mail->addAddress($email); // Send to the user's email
+                        $mail->Subject = "تأكيد حجز هايكنق في المدينة المنورة";
+                        $mail->Body = "
+                            <b>مرحبا  </b> $username<br>
+                            <b>تم حجز رحلة هايكنق في المدينة المنورة بنجاح</b><br>
+                            <b>عدد الأشخاص:</b> $num_people<br>
+                            <b>تاريخ الرحلة:</b> $trip_date<br>
+                            <b>طريقة الدفع:</b> $payment_method<br>
+                        ";
+
+                        // Send the email
+                        if ($mail->send()) {
+                            $success_message = "تم الحجز بنجاح! سيتم إرسال تفاصيل الحجز إلى بريدك الإلكتروني.";
+                        } else {
+                            $error_message = "حدث خطأ أثناء إرسال البريد الإلكتروني: " . $mail->ErrorInfo;
+                        }
+                    } catch (Exception $e) {
+                        $error_message = "حدث خطأ أثناء معالجة البريد الإلكتروني: " . $e->getMessage();
+                    }
+                } else {
+                    $error_message = "لم يتم العثور على البريد الإلكتروني للمستخدم.";
+                }
+
+                // Close email statement
+                $stmt_email->close();
             } else {
-                $error_message = "حدث خطأ أثناء إرسال البريد الإلكتروني: " . $mail->ErrorInfo;
+                $error_message = "حدث خطأ أثناء جلب البريد الإلكتروني للمستخدم.";
             }
-        } catch (Exception $e) {
-            $error_message = "حدث خطأ أثناء معالجة البريد الإلكتروني: " . $e->getMessage();
+        } else {
+            $error_message = "حدث خطأ أثناء حفظ البيانات في قاعدة البيانات.";
         }
+
+        // Close booking statement
+       
     } else {
-        $error_message = "حدث خطأ أثناء حفظ البيانات في قاعدة البيانات.";
+        $error_message = "خطأ في إعداد استعلام الحجز.";
     }
 }
+
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="ar">
@@ -229,7 +267,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['book'])) {
                     <option value="paypal">باي بال</option>
                     <option value="bank-transfer">تحويل بنكي</option>
                 </select>
-                <button type="submit" name="book" class="button">أكمل عملية الدفع</button>
+                <button type="submit" name="book" class="button"">أكمل عملية الدفع</button>
             </div>
         </form>
         
@@ -237,5 +275,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['book'])) {
         <?php if (isset($success_message)) { echo "<p>$success_message</p>"; } ?>
         <?php if (isset($error_message)) { echo "<p>$error_message</p>"; } ?>
     </div>
+
 </body>
 </html>

@@ -1,6 +1,5 @@
-let searchBtn = document.querySelector("#search-btn")       
+let searchBtn = document.querySelector("#search-btn")
 let searchForm = document.querySelector(".search-form") 
-let trashPop = document.querySelector("")
 let loginForm = document.querySelector(".login-form")
 let menuBar = document.querySelector("#menu-bar")
 let amenu = document.querySelector(".navbar")

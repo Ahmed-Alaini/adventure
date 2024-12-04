@@ -44,59 +44,9 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Table structure for `bookings`
---
-
-CREATE TABLE `bookings` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `num_people` INT(11) NOT NULL,
-  `trip_date` DATE NOT NULL,
-  `payment_method` VARCHAR(50) NOT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  `user_id` INT(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- Data for table `bookings`
---
 
-INSERT INTO `bookings` (`id`, `num_people`, `trip_date`, `payment_method`, `created_at`, `user_id`) VALUES
-(1, 13, '2024-11-14', 'bank-transfer', '2024-11-26 08:45:18', NULL),
-(2, 13, '2024-11-14', 'bank-transfer', '2024-11-26 09:28:38', NULL),
-(3, 4, '2024-11-20', 'credit-card', '2024-11-26 10:18:42', NULL),
-(4, 8, '2024-11-22', 'bank-transfer', '2024-11-26 10:21:12', NULL),
-(5, 4, '2024-11-29', 'credit-card', '2024-11-26 10:25:51', NULL),
-(6, 8, '2024-11-22', 'bank-transfer', '2024-11-26 10:31:57', NULL),
-(7, 2, '2024-11-28', 'paypal', '2024-11-26 10:32:28', NULL),
-(8, 4, '2024-11-22', 'credit-card', '2024-11-26 10:35:03', NULL),
-(9, 4, '2024-11-22', 'paypal', '2024-11-26 10:35:50', NULL),
-(10, 4, '2024-11-26', 'paypal', '2024-11-26 10:36:20', NULL),
-(11, 4, '2024-11-19', 'credit-card', '2024-11-26 10:38:52', NULL),
-(12, 7, '2024-10-29', 'credit-card', '2024-11-26 10:54:28', NULL),
-(13, 7, '2024-10-29', 'credit-card', '2024-11-26 10:55:57', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for `contact_messages`
---
-
-CREATE TABLE `contact_messages` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) NOT NULL,
-  `subject` VARCHAR(255) NOT NULL,
-  `message` TEXT NOT NULL,
-  `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for `trips`
 --
 
@@ -123,6 +73,49 @@ INSERT INTO `trips` (`id`, `image`, `location`, `description`, `rating`, `price`
 (4, 'p-4.jpg', 'حائل', 'جبال اجا', 4, 120.00, 250.00, 'hail.php'),
 (5, 'p-5.jpg', 'الطائف', 'جبال دكا', 4, 120.00, 250.00, 'taif.php'),
 (6, 'p-6.jpg', 'عسير', 'جبال السروات', 4, 120.00, 250.00, 'asir.php');
+ 
+
+
+
+--
+-- Table structure for `bookings`
+--
+
+CREATE TABLE `bookings` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `num_people` INT(11) NOT NULL,
+  `trip_date` DATE NOT NULL,
+  `booked` TINYINT(1) NOT NULL DEFAULT 0,
+  `payment_method` VARCHAR(50) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `user_id` INT(11) DEFAULT NULL,
+  `trip_id` INT(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `bookings_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `bookings_fk_trip_id` FOREIGN KEY (`trip_id`) REFERENCES `trips` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Data for table `bookings`
+--
+
+------------------------------------------------
+-- Table structure for `contact_messages`
+--
+
+CREATE TABLE `contact_messages` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `subject` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 
 
 COMMIT;

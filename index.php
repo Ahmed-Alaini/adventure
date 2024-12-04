@@ -1,7 +1,6 @@
 <?php
 session_start();
 include('db.php'); // تضمين ملف الاتصال بقاعدة البيانات
-
 // التحقق مما إذا كان المستخدم قد سجل الدخول
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
@@ -145,8 +144,48 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
         <div class="trash_pop" id="pup">
         <div class="container-inner">
               <div class="content_trush">
-          <p>Do you want to Continue?</p>
-              </div>
+              
+               <?php
+               
+               $user_id = $_SESSION['user_id']; // Ensure this is set appropriately
+               
+           
+               
+            
+     
+            //    // SQL query to retrieve bookings
+               $sql = "
+                   SELECT b.num_people, b.created_at, t.location 
+                   FROM bookings b 
+                   JOIN trips t ON b.trip_id = t.id 
+                   WHERE b.user_id = ? AND b.booked = 1
+               ";
+               
+            //    // Prepare and execute the statement
+               if ($stmt = $conn->prepare($sql)) {
+                   $stmt->bind_param("i", $user_id); // Bind user_id as integer
+                   $stmt->execute();
+                   $result = $stmt->get_result();
+                   
+            //        // Check for results
+                   if ($result->num_rows > 0) {
+                       echo "<ul>";
+                       while ($row = $result->fetch_assoc()) {
+                           echo "<li style=''>عدد الأشخاص: " . $row['num_people'] .'<br>'. ", تاريخ الحجز: " . $row['created_at'] .'<br>'.  ", الموقع: " . $row['location'] . "</li>"."<hr>";
+                       }
+                       echo "</ul>";
+                   } else {
+                       echo "لا توجد حجوزات."; // No bookings found
+                   }
+               
+                   $stmt->close(); // Close the statement
+               } else {
+                   echo "خطأ في إعداد استعلام الحجوزات: " . $conn->error; // Error preparing the statement
+               }
+               
+               ?>
+                
+               </div>
            <div class="buttons_trush" >
                <button type="button" class="confirm" onclick="hide_pop()">رجوع</button>
             <button type="button" class="cancel" onclick= "hide_pop()">حذف</button>
