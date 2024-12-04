@@ -1,25 +1,89 @@
 <?php
+session_start();
+require_once 'mail.php'; 
 include('db.php'); // الاتصال بقاعدة البيانات
 
-// إذا تم إرسال النموذج
+// Ensure the user is logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: auth.php");
+    exit();
+}
+
+// If the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['book'])) {
-    // معالجة بيانات النموذج
+    // Sanitize and prepare input data
     $num_people = mysqli_real_escape_string($conn, $_POST['num_people']);
     $trip_date = mysqli_real_escape_string($conn, $_POST['trip_date']);
     $payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
 
-    // استعلام لإدخال بيانات الحجز في قاعدة البيانات
-    $sql = "INSERT INTO bookings (num_people, trip_date, payment_method) 
-            VALUES ('$num_people', '$trip_date', '$payment_method')";
+    $username = $_SESSION['username'];
+    $userId = $_SESSION['user_id'];
 
-    if (mysqli_query($conn, $sql)) {
-        // رسالة نجاح
-        $success_message = "تم الحجز بنجاح! سيتم إرسال تفاصيل الحجز إلى بريدك الإلكتروني.";
+    // Prepare the SQL statement to insert booking details
+    $sql = "INSERT INTO bookings (num_people, trip_date, payment_method, user_id, trip_id, booked) 
+            VALUES (?, ?, ?, ?, ?, ?)";
+
+    // Prepare the statement to avoid SQL injection
+    if ($stmt = $conn->prepare($sql)) {
+        // Bind parameters
+        $booked = 1; 
+        $trip_id= 5;
+        $stmt->bind_param("issiii", $num_people, $trip_date, $payment_method, $userId, $trip_id, $booked);
+
+        // Execute the query
+        if ($stmt->execute()) {
+            // Query to fetch email from users table
+            $query = "SELECT email FROM users WHERE id = ?";
+            if ($stmt_email = $conn->prepare($query)) {
+                // Bind user ID and execute the query
+                $stmt_email->bind_param("i", $userId);
+                $stmt_email->execute();
+                $stmt_email->bind_result($email);
+                $stmt_email->fetch();
+
+                if ($email) {
+                    // Send confirmation email using PHPMailer
+                    try {
+                        $mail->setFrom('sadv65550@gmail.com', 'مغامرة حياتك');
+                        $mail->addAddress($email); // Send to the user's email
+                        $mail->Subject = "تأكيد حجز هايكنق في  الطائف";
+                        $mail->Body = "
+                            <b>مرحبا  </b> $username<br>
+                            <b>تم حجز رحلة هايكنق في الطائف  بنجاح</b><br>
+                            <b>عدد الأشخاص:</b> $num_people<br>
+                            <b>تاريخ الرحلة:</b> $trip_date<br>
+                            <b>طريقة الدفع:</b> $payment_method<br>
+                        ";
+
+                        // Send the email
+                        if ($mail->send()) {
+                            $success_message = "تم الحجز بنجاح! سيتم إرسال تفاصيل الحجز إلى بريدك الإلكتروني.";
+                        } else {
+                            $error_message = "حدث خطأ أثناء إرسال البريد الإلكتروني: " . $mail->ErrorInfo;
+                        }
+                    } catch (Exception $e) {
+                        $error_message = "حدث خطأ أثناء معالجة البريد الإلكتروني: " . $e->getMessage();
+                    }
+                } else {
+                    $error_message = "لم يتم العثور على البريد الإلكتروني للمستخدم.";
+                }
+
+                // Close email statement
+                $stmt_email->close();
+            } else {
+                $error_message = "حدث خطأ أثناء جلب البريد الإلكتروني للمستخدم.";
+            }
+        } else {
+            $error_message = "حدث خطأ أثناء حفظ البيانات في قاعدة البيانات.";
+        }
+
+        // Close booking statement
+       
     } else {
-        // رسالة خطأ
-        $error_message = "حدث خطأ أثناء حفظ البيانات في قاعدة البيانات: " . mysqli_error($conn);
+        $error_message = "خطأ في إعداد استعلام الحجز.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -199,9 +263,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['book'])) {
             </div>
         </form>
 
-        <!-- عرض الرسالة بعد الحجز -->
-        <?php if (isset($success_message)) { echo "<p>$success_message</p>"; } ?>
-        <?php if (isset($error_message)) { echo "<p>$error_message</p>"; } ?>
+       <!-- عرض الرسالة بعد الحجز بنجاح -->
+       <?php
+if (isset($_SESSION['success_message'])) {
+    echo "<p>" . $_SESSION['success_message'] . "</p>";
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    echo "<p>" . $_SESSION['error_message'] . "</p>";
+    unset($_SESSION['error_message']);
+}
+ ?>
     </div>
 </body>
 </html>

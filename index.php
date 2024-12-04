@@ -138,7 +138,7 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
         <div class="icon">
             <i class="fas fa-search" onclick="showbar()" id="search-btn"></i>
             <i class="fas fa-user" onclick="showform()"></i>
-            <i class="fas fa-trash-can" id="trash_bt" onclick="show_pop()" ></i>
+            <i class="fa-solid fa-calendar-days" id="trash_bt" onclick="show_pop()" ></i>
         </div>
 
         <div class="trash_pop" id="pup">
@@ -171,7 +171,8 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
                    if ($result->num_rows > 0) {
                        echo "<ul>";
                        while ($row = $result->fetch_assoc()) {
-                           echo "<li style=''>عدد الأشخاص: " . $row['num_people'] .'<br>'. ", تاريخ الحجز: " . $row['created_at'] .'<br>'.  ", الموقع: " . $row['location'] . "</li>"."<hr>";
+                           echo "<li style= 'font-size: 20px;'>عدد الأشخاص: " . $row['num_people'] .'<br>'. " تاريخ الحجز: " . $row['created_at'] .'<br>'.  " المدينة: " . $row['location'] . "</li>";
+                           echo "</br>";
                        }
                        echo "</ul>";
                    } else {
@@ -188,7 +189,7 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
                </div>
            <div class="buttons_trush" >
                <button type="button" class="confirm" onclick="hide_pop()">رجوع</button>
-            <button type="button" class="cancel" onclick= "hide_pop()">حذف</button>
+            <button type="button" class="cancel" onclick= "hide_pop()"><i class="fas fa-trash-can"></i></button>
            </div>
         </div>
        </div>
