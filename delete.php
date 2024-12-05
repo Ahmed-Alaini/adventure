@@ -61,14 +61,14 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
     top: 0;
 }
 .content_trush {
-    font-size: 30;
   font-family: "Skranji", cursive;
   background: radial-gradient(#fffbf3, #ffe19e);
   padding: 24px;
   box-sizing: border-box;
   border-radius: 20px 18px 20px 18px;
-  box-shadow: 5px 6px 0px -2px #6F4E37, -6px 5px 0px -2px #6F4E37, 0px -2px 0px 2px #6F4E37, 0px 10px 0px 0px #6F4E37, 0px -10px 0px 1px #6F4E37, 0px 0px 180px 90px #6F4E37;
-
+  box-shadow: 0px 0px 0px 6px #5e1e21, 0px 0px 8px 6px #84222b,
+    inset 0px 0px 15px 0px #614506, 6px 6px 1px 1px #e66565,
+    -6px 6px 1px 1px #e66565;
   text-align: center;
 
   p {
@@ -148,19 +148,17 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
                <?php
                
                $user_id = $_SESSION['user_id']; // Ensure this is set appropriately
-               
-           
-               
-            
-     
             //    // SQL query to retrieve bookings
-               $sql = "
-                   SELECT b.num_people, b.created_at, t.location 
-                   FROM bookings b 
-                   JOIN trips t ON b.trip_id = t.id 
-                   WHERE b.user_id = ? AND b.booked = 1
-               ";
-               
+            $sql = "
+            UPDATE bookings 
+            SET booked = 0 
+            WHERE user_id = ? AND booked = 1 AND trip_id IN (
+            SELECT b.trip_id 
+            FROM bookings b 
+            JOIN trips t ON b.trip_id = t.id 
+            WHERE b.user_id = ? AND b.booked = 1
+        ";
+            
             //    // Prepare and execute the statement
                if ($stmt = $conn->prepare($sql)) {
                    $stmt->bind_param("i", $user_id); // Bind user_id as integer
@@ -176,7 +174,7 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
                        }
                        echo "</ul>";
                    } else {
-                       echo "لا توجد حجوزات"; // No bookings found
+                       echo "لا توجد حجوزات."; // No bookings found
                    }
                
                    $stmt->close(); // Close the statement
@@ -188,12 +186,12 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
                 
                </div>
            <div class="buttons_trush" >
-            <button type="button" class="confirm" onclick="hide_pop()">رجوع</button>
-            <button type="button" class="cancel" onclick= "delete_pop()"><i class="fas fa-trash-can"></i></button>
+               <button type="button" class="confirm" onclick="hide_pop()">رجوع</button>
+            <button type="button" class="cancel" onclick= "hide_pop()"><a href="delete.php" style="color: white"><i class="fas fa-trash-can"></i></a></button>
            </div>
         </div>
        </div>
-       
+     
         <form action="" class="search-form">
             <input type="search" id="search-bar" placeholder="عن ماذا تبحث">
             <label for="search-bar" class="fas fa-search"></label>
@@ -464,35 +462,10 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
 function show_pop(){
     document.getElementById('pup').classList.add('open');
 }
-function delete_pop(){
-    document.getElementById('pup').classList.remove('open');
-    <?php 
-    $user_id = $_SESSION['user_id'];
-    //    // SQL query to retrieve bookings
-    $sql = "
-   UPDATE bookings 
-SET booked = 0 
-WHERE user_id = ? AND booked = 1;
-";
-if ($stmt = $conn->prepare($sql)) {
-    $stmt->bind_param("i", $user_id); // Bind user_id as integer
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
- 
-}
-
- 
-$stmt->close();
-
-?>
-  location.reload(); 
-}
-
 function hide_pop(){
     document.getElementById('pup').classList.remove('open');
- 
 }
+
 
 
 </script>
