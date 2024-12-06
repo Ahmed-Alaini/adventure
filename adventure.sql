@@ -40,10 +40,9 @@ CREATE TABLE `users` (
   `city` VARCHAR(255) DEFAULT NULL,
   `phone` VARCHAR(10) DEFAULT NULL,
   `gender` VARCHAR(10) DEFAULT NULL,
-  `medical_record` VARCHAR(255) DEFAULT NULL,
+  `image` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 
 
@@ -103,13 +102,15 @@ CREATE TABLE `bookings` (
 -- Table structure for `contact_messages`
 --
 
-CREATE TABLE `contact_messages` (
+CREATE TABLE `comments` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `subject` VARCHAR(255) NOT NULL,
   `message` TEXT NOT NULL,
   `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `user_id` INT(11) DEFAULT NULL,
+  CONSTRAINT `contact_fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

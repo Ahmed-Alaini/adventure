@@ -15,12 +15,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     $gender = mysqli_real_escape_string($conn, $_POST['gender']);
 
     // التعامل مع الملف المرفق (السجل الصحي)
-    if (isset($_FILES['medical_record'])) {
-        $medical_record = $_FILES['medical_record']['name'];
-        $medical_record_tmp = $_FILES['medical_record']['tmp_name'];
-        move_uploaded_file($medical_record_tmp, "uploads/" . $medical_record);
+    if (isset($_FILES['image'])) {
+        $image = $_FILES['image']['name'];
+        $image_tmp = $_FILES['image']['tmp_name'];
+        move_uploaded_file($image_tmp, "uploads/" . $image);
     } else {
-        $medical_record = NULL;
+        $image = NULL;
     }
 
     // عدم تشفير كلمة المرور، بل تخزينها كما هي
@@ -29,11 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     $hashed_password = $password; // تخزين كلمة السر كما هي
 
     // استعلام لإدخال البيانات في قاعدة البيانات
-    $sql = "INSERT INTO users (fullname, username, password, email, id_number, birth_date, city, phone, gender, medical_record) 
-            VALUES ('$fullname', '$username', '$hashed_password', '$email', '$id_number', '$birth_date', '$city', '$phone', '$gender', '$medical_record')";
+    $sql = "INSERT INTO users (fullname, username, password, email, id_number, birth_date, city, phone, gender, image) 
+            VALUES ('$fullname', '$username', '$hashed_password', '$email', '$id_number', '$birth_date', '$city', '$phone', '$gender', '$image')";
 
     if (mysqli_query($conn, $sql)) {
         echo "تم التسجيل بنجاح! <a href='auth.php'>تسجيل الدخول</a>";
+        header("Location: success.html");
     } else {
         echo "حدث خطأ: " . mysqli_error($conn);
     }
@@ -150,8 +151,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
             <input type="text" id="id_number" name="id_number" required pattern="\d{10}" maxlength="10" title="يجب أن يحتوي رقم الهوية على 10 أرقام فقط">
         </div>
         <div class="input-group">
-            <label for="medical_record"> السجل الصحي:</label>
-            <input type="file" id="medical_record" name="medical_record" accept="image/*">
+            <label for="image">صورة شخصية :</label>
+            <input type="file" id="image" name="image">
         </div>
         <div class="input-group">
             <label for="birth_date">تاريخ الميلاد:</label>

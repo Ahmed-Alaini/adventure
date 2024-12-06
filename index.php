@@ -148,11 +148,7 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
                <?php
                
                $user_id = $_SESSION['user_id']; // Ensure this is set appropriately
-               
-           
-               
             
-     
             //    // SQL query to retrieve bookings
                $sql = "
                    SELECT b.num_people, b.created_at, t.location 
@@ -327,66 +323,56 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
         <h1 class="heading">
             <span>التعليقات</span>
         </h1>
-
         <div class="swiper review-slider">
-            <div class="swiper-wrapper">
+    <div class="swiper-wrapper">
+        <?php
+
+        $sql = "SELECT c.*, u.fullname, u.username FROM comments c
+                LEFT JOIN users u ON c.user_id = u.id
+                ORDER BY c.sent_at DESC";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $name = htmlspecialchars($row['name']);
+                $message = htmlspecialchars($row['message']);
+                $rating = intval($row['rating']);
+                $profile_img = !empty($row['image']) 
+                ? "images/" . htmlspecialchars($row['image']) 
+                : "images/default_profile.jpg";
+
+                if (!empty($row['username'])) {
+                    $profile_img = "uploads/{$row['username']}.jpg"; // Example path to user-uploaded images
+                }
+
+                echo '
                 <div class="swiper-slide">
                     <div class="box">
-                        <img src="images/pic1.jpg" alt="">
-                        <h3>YARA</h3>
-                        <p>اكثر شي عجبني انه فيه حجز لناااا اخيراا</p>
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
+                        <img src="' . $profile_img . '" alt="">
+                        <h3>' . $name . '</h3>
+                        <p>' . $message . '</p>
+                        <div class="stars">';
+                
+                for ($i = 1; $i <= 5; $i++) {
+                    if ($i <= $rating) {
+                        echo '<i class="fas fa-star"></i>';
+                    } else {
+                        echo '<i class="far fa-star"></i>';
+                    }
+                }
+                
+                echo '</div>
                     </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="box">
-                        <img src="images/pic2.jpg" alt="">
-                        <h3>HATTAN</h3>
-                        <p>فكرة الحجز المسبق فكرة جميلة وتوفير وقت وجهد مع زحمة الرياض , مبدعيييين</p>
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="box">
-                        <img src="images/pic3.jpg" alt="">
-                        <h3>KHALED</h3>
-                        <p>شكرا لكم قضيت وقت جميل!</p>
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="box">
-                        <img src="images/pic4.jpg" alt="">
-                        <h3>GHADI</h3>
-                        <p>المرشدين تعاملهم فوق الممتاز وحبيت انكم مهتمين حتى للاطفال انتو فنانيييين استمروووا</p>
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i> 
-                        </div>
-                    </div>
-                </div>
-            </div>
+                </div>';
+            }
+        } else {
+            echo '<p>No reviews yet.</p>';
+        }
+        ?>
+    </div>
+</div>
+        
+        
         </div>
 
     </section>
@@ -395,28 +381,26 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
     <!----------------------------------------------------------------------------------------------------->
 
     <section class="contact" id="contact">
-
-        <h1 class="heading">
-            <span>الرسائل</span>
-        </h1>
-
-        <div class="row">
-            <div class="image">
-                <img src="images/contact-img.svg" alt="">
-            </div>
-            <form action="">
-                <div class="inputbox">
-                    
-                </div>
-                <div class="inputbox">
-                    <input type="number" placeholder="عدد النجوم">
-                    <input type="text" placeholder="المستخدم">
-                </div>
-                <textarea name="" id="" cols="30" rows="10" placeholder="رسالة"></textarea>
-                <input type="submit" class="btn" value=" إرسال الرسالة">
-            </form>
+    <h1 class="heading">
+        <span>الرسائل</span>
+    </h1>
+    <div class="row">
+        <div class="image">
+            <img src="images/contact-img.svg" alt="">
         </div>
-    </section>
+        <form action="submit_comment.php" method="POST">
+            <div class="inputbox">
+                <input type="text" name="name" placeholder="اسم المستخدم" required>
+            </div>
+            <div class="inputbox">
+                <input type="number" name="rating" placeholder="عدد النجوم (1-5)" min="1" max="5" required>
+            </div>
+            <textarea name="message" cols="30" rows="10" placeholder="رسالة" required></textarea>
+            <input type="submit" class="btn" value="إرسال الرسالة">
+        </form>
+    </div>
+  </section>
+
   
     <!------------------------------------------------------------------------------------------->
     <!------------------------------------------------------------------------------------------->
@@ -464,29 +448,29 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
 function show_pop(){
     document.getElementById('pup').classList.add('open');
 }
-function delete_pop(){
+
+
+function delete_pop() {
     document.getElementById('pup').classList.remove('open');
-    <?php 
-    $user_id = $_SESSION['user_id'];
-    //    // SQL query to retrieve bookings
-    $sql = "
-   UPDATE bookings 
-SET booked = 0 
-WHERE user_id = ? AND booked = 1;
-";
-if ($stmt = $conn->prepare($sql)) {
-    $stmt->bind_param("i", $user_id); // Bind user_id as integer
-    $stmt->execute();
-    $result = $stmt->get_result();
     
- 
-}
-
- 
-$stmt->close();
-
-?>
-  location.reload(); 
+    // Send an AJAX request to call the PHP script
+    fetch('update_booking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'delete_booking' }) // Send any required data
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Booking successfully updated.");
+        } else {
+            console.error("Error updating booking:", data.message);
+        }
+        location.reload(); // Reload the page after successful operation
+    })
+    .catch(error => console.error("Error:", error));
 }
 
 function hide_pop(){
