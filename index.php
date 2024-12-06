@@ -318,65 +318,67 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
     <!--------------------حذف الصور --------------------------------------------------------------------->
     <!----------------------------------------------------------------------------------------->
     
-    <section class="review" id="review">
+        <section class="review" id="review">
 
-        <h1 class="heading">
-            <span>التعليقات</span>
-        </h1>
-        <div class="swiper review-slider">
-    <div class="swiper-wrapper">
-        <?php
+            <h1 class="heading">
+                <span>التعليقات</span>
+            </h1>
+            <div class="swiper review-slider">
+        <div class="swiper-wrapper">
+            <?php
 
-        $sql = "SELECT c.*, u.fullname, u.username FROM comments c
-                LEFT JOIN users u ON c.user_id = u.id
-                ORDER BY c.sent_at DESC";
-        $result = $conn->query($sql);
+$sql = "SELECT c.*, u.fullname, u.id_number, u.image, u.id 
+FROM comments c
+LEFT JOIN users u ON c.user_id = u.id
+ORDER BY c.sent_at DESC";
+            $result = $conn->query($sql);
 
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $name = htmlspecialchars($row['name']);
-                $message = htmlspecialchars($row['message']);
-                $rating = intval($row['rating']);
-                $profile_img = !empty($row['image']) 
-                ? "images/" . htmlspecialchars($row['image']) 
-                : "images/default_profile.jpg";
-
-                if (!empty($row['username'])) {
-                    $profile_img = "uploads/{$row['username']}.jpg"; // Example path to user-uploaded images
-                }
-
-                echo '
-                <div class="swiper-slide">
-                    <div class="box">
-                        <img src="' . $profile_img . '" alt="">
-                        <h3>' . $name . '</h3>
-                        <p>' . $message . '</p>
-                        <div class="stars">';
-                
-                for ($i = 1; $i <= 5; $i++) {
-                    if ($i <= $rating) {
-                        echo '<i class="fas fa-star"></i>';
-                    } else {
-                        echo '<i class="far fa-star"></i>';
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $name = htmlspecialchars($row['name']);
+                    $message = htmlspecialchars($row['message']);
+                    $rating = intval($row['rating']);
+                    // $profile_img = !empty($row['image']) 
+                    // ? "uploads/" . htmlspecialchars($row['username']) 
+                    // : "images/default_image.jpg";
+                      
+              
+                    if (!empty($row['id_number'])) {
+                        $profile_img = "uploads/{$row['id_number']}.jpg"; // Example path to user-uploaded images
                     }
-                }
-                
-                echo '</div>
-                    </div>
-                </div>';
-            }
-        } else {
-            echo '<p>No reviews yet.</p>';
-        }
-        ?>
-    </div>
-</div>
-        
-        
-        </div>
 
-    </section>
-    
+                    echo '
+                    <div class="swiper-slide">
+                        <div class="box">
+                            <img src="' . $profile_img . '" alt="NO found">
+                            <h3>' . $name . '</h3>
+                            <p>' . $message . '</p>
+                            <div class="stars">';
+                    
+                    for ($i = 1; $i <= 5; $i++) {
+                        if ($i <= $rating) {
+                            echo '<i class="fas fa-star"></i>';
+                        } else {
+                            echo '<i class="far fa-star"></i>';
+                        }
+                    }
+                    
+                    echo '</div>
+                        </div>
+                    </div>';
+                }
+            } else {
+                echo '<p>No reviews yet.</p>';
+            }
+            ?>
+        </div>
+    </div>
+            
+            
+            </div>
+
+        </section>
+        
     <!----------------------------------------------------------------------------------------------------->
     <!----------------------------------------------------------------------------------------------------->
 

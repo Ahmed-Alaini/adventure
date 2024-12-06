@@ -15,13 +15,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     $gender = mysqli_real_escape_string($conn, $_POST['gender']);
 
     // التعامل مع الملف المرفق (السجل الصحي)
-    if (isset($_FILES['image'])) {
-        $image = $_FILES['image']['name'];
+
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        // Get the temporary file name and file extension
         $image_tmp = $_FILES['image']['tmp_name'];
-        move_uploaded_file($image_tmp, "uploads/" . $image);
+        $image_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+    
+        // Use the user's ID as the file name
+        $image = $id_number . '.' . $image_extension; // Assuming $user_id is already defined
+    
+        // Save the file in the "uploads" directory
+        $upload_path = "uploads/" . $image;
+        if (move_uploaded_file($image_tmp, $upload_path)) {
+            echo "Image uploaded successfully!";
+        } else {
+            echo "Failed to upload image.";
+            $image = NULL; // Set to NULL if the upload fails
+        }
     } else {
-        $image = NULL;
+        $image = NULL; // Set to NULL if no image is uploaded
     }
+    
 
     // عدم تشفير كلمة المرور، بل تخزينها كما هي
     // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
