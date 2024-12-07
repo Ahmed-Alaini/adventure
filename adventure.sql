@@ -116,7 +116,9 @@ CREATE TABLE `comments` (
 
 -- --------------------------------------------------------
 
---
+ALTER TABLE `comments`
+ADD COLUMN `rating` INT(1) NOT NULL,
+ADD CONSTRAINT `rating_check` CHECK (`rating` BETWEEN 1 AND 5);
 
 
 COMMIT;
