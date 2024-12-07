@@ -166,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
         </div>
         <div class="input-group">
             <label for="image">صورة شخصية :</label>
-            <input type="file" id="image" name="image">
+            <input type="file" id="image" name="image" required>
         </div>
         <div class="input-group">
             <label for="birth_date">تاريخ الميلاد:</label>

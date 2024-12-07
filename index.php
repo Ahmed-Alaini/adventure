@@ -51,10 +51,7 @@ echo "مرحبًا " . htmlspecialchars($_SESSION['username']) . "!";
   background: #a4363e;
   padding: 40px;
   border-radius: 30px;
-  box-shadow: 5px 6px 0px -2px #620d15, -6px 5px 0px -2px #620d15,
-    0px -2px 0px 2px #ee9191, 0px 10px 0px 0px #610c14,
-    0px -10px 0px 1px #e66565, 0px 0px 180px 90px #0d2f66;
-  width: 640px;
+  width: 640px; /* Keep this if you want the width to remain */
 }
 .trash_pop.open {
     opacity: 1;

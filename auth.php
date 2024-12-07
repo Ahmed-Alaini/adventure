@@ -1,6 +1,13 @@
 <?php
 include('db.php');  // الاتصال بقاعدة البيانات
 
+// Initialize error variables
+$usernameError = '';
+$passwordError = '';
+$errorMessage = '';
+$username = '';  // Initialize username variable
+$password = '';  // Initialize password variable
+
 // التحقق مما إذا كان المستخدم قد طلب تسجيل الدخول
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
     // معالجة بيانات تسجيل الدخول
@@ -23,10 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             header("Location: index.php"); // التوجيه إلى الصفحة الرئيسية
             exit();
         } else {
-            echo "<p style='color: red;'>كلمة المرور غير صحيحة</p>";
+            // كلمة المرور غير صحيحة
+            $passwordError = 'is-invalid';
+            $errorMessage = 'كلمة المرور غير صحيحة';
         }
     } else {
-        echo "<p style='color: red;'>اسم المستخدم غير موجود</p>";
+        // اسم المستخدم غير موجود
+        $usernameError = 'is-invalid';
+        $errorMessage = 'اسم المستخدم غير موجود';
     }
 }
 ?>
@@ -80,6 +91,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             border-radius: 4px;
         }
 
+        .input-group input.is-invalid {
+            border: 1px solid red; /* Apply red border for invalid fields */
+        }
+
         .login-button {
             width: 100%;
             padding: 10px;
@@ -108,6 +123,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         .register-forms a:hover {
             text-decoration: underline;
         }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -117,12 +139,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
     <form action="auth.php" method="post">
         <div class="input-group">
             <label for="username">اسم المستخدم:</label>
-            <input type="text" id="username" name="username" required>
-        </div>  
+            <input type="text" id="username" name="username" class="<?php echo $usernameError; ?>" value="<?php echo htmlspecialchars($username); ?>" required>
+        </div>
         <div class="input-group">
             <label for="password">الرمز السري:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" class="<?php echo $passwordError; ?>" value="<?php echo htmlspecialchars($password); ?>" required>
         </div>
+        
+        <?php if (!empty($errorMessage)): ?>
+            <div class="error-message">
+                <p><?php echo $errorMessage; ?></p>
+            </div>
+        <?php endif; ?>
+        
         <button type="submit" class="login-button" name="login">دخول</button>
     </form>
 

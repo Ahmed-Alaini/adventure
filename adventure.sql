@@ -32,7 +32,7 @@ START TRANSACTION;
 CREATE TABLE `users` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `fullname` VARCHAR(255) DEFAULT NULL,
-  `username` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `username` VARCHAR(255) DEFAULT NULL,
   `password` VARCHAR(255) DEFAULT NULL,
   `email` VARCHAR(255) DEFAULT NULL,
   `id_number` VARCHAR(10) DEFAULT NULL,
@@ -65,13 +65,14 @@ CREATE TABLE `trips` (
 -- Data for table `trips`
 --
 
-INSERT INTO `trips` (`id`, `image`, `location`, `description`, `rating`, `price`, `original_price`, `link`) VALUES
-(1, 'p-1.jpg', 'العلا', 'جبال الصخرة الجرة', 4, 120.00, 250.00, 'alula.php'),
-(2, 'p-2.jpg', 'المدينة المنورة', 'جبل أحد', 4, 120.00, 250.00, 'medina.php'),
-(3, 'p-3.jpg', 'الرياض', 'جبل طويق', 4, 120.00, 250.00, 'riyadh.php'),
-(4, 'p-4.jpg', 'حائل', 'جبال اجا', 4, 120.00, 250.00, 'hail.php'),
-(5, 'p-5.jpg', 'الطائف', 'جبال دكا', 4, 120.00, 250.00, 'taif.php'),
-(6, 'p-6.jpg', 'عسير', 'جبال السروات', 4, 120.00, 250.00, 'asir.php');
+INSERT INTO `trips` (`image`, `location`, `description`, `rating`, `price`, `original_price`, `link`) VALUES
+('p-1.jpg', 'العلا', 'جبال الصخرة الجرة', 4, 120.00, 250.00, 'alula.php'),
+('p-2.jpg', 'المدينة المنورة', 'جبل أحد', 4, 120.00, 250.00, 'medina.php'),
+('p-3.jpg', 'الرياض', 'جبل طويق', 4, 120.00, 250.00, 'riyadh.php'),
+('p-4.jpg', 'حائل', 'جبال اجا', 4, 120.00, 250.00, 'hail.php'),
+('p-5.jpg', 'الطائف', 'جبال دكا', 4, 120.00, 250.00, 'taif.php'),
+('p-6.jpg', 'عسير', 'جبال السروات', 4, 120.00, 250.00, 'asir.php');
+
  
 
 
